@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BHB ML Myocardial Suppression Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      padding: 24px;
+    }
+
+    .card {
+      background: rgba(15,23,42,0.97);
+      border-radius: 18px;
+      padding: 22px 20px;
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+    }
+
+    .header {
+      margin-bottom: 16px;
+    }
+
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #f9fafb;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(94,234,212,0.6);
+      color: #a5f3fc;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-top: 6px;
+    }
+
+    .presenter {
+      font-size: 0.8rem;
+      color: #cbd5f5;
+      margin-top: 4px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .unit {
+      font-size: 0.72rem;
+      color: #6b7280;
+    }
+
+    input, select {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.95);
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #22d3ee;
+      box-shadow: 0 0 0 1px rgba(34,211,238,0.6);
+      background: #020617;
+    }
+
+    .button-row {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617;
+      box-shadow: 0 12px 25px rgba(34,197,94,0.35);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(148,163,184,0.7);
+      color: #e5e7eb;
+    }
+
+    .btn-demo {
+      background: rgba(15,23,42,0.9);
+      border: 1px dashed rgba(148,163,184,0.7);
+      color: #a5b4fc;
+      font-size: 0.8rem;
+      padding: 6px 12px;
+    }
+
+    .results {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.2fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .results {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .result-card {
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent),
+                  rgba(15,23,42,0.98);
+    }
+
+    .result-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .prob-value {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #bbf7d0;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .badge-good {
+      color: #4ade80;
+      border-color: rgba(74,222,128,0.9);
+      background: rgba(22,163,74,0.18);
+    }
+
+    .badge-bad {
+      color: #fca5a5;
+      border-color: rgba(248,113,113,0.9);
+      background: rgba(153,27,27,0.25);
+    }
+
+    .ratio-value {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .small {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    details {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    summary {
+      cursor: pointer;
+      color: #a5b4fc;
+    }
+
+    .footer-note {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-top: 10px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <header class="header">
+        <div class="title-row">
+          <div class="title">BHB Machine Learning Calculator</div>
+          <span class="pill">FDG Myocardial Suppression</span>
+        </div>
+        <div class="subtitle">
+          Predicts probability of <b>adequate myocardial FDG suppression</b> using BHB, glucose, diabetes status,
+          and myocardial-to-blood pool (M:BP) SUV ratio.
+        </div>
+        <div class="presenter">
+          Presenter: <b>Saloni Gadikar</b> — Department of Nuclear Medicine
+        </div>
+      </header>
+
+      <section class="inputs">
+        <div class="grid">
+          <div class="field">
+            <div class="label">
+              <span>BHB</span>
+              <span class="unit">mmol/L</span>
+            </div>
+            <input id="bhb" type="number" step="0.01" placeholder="e.g. 1.6">
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <span>Glucose</span>
+              <span class="unit">mg/dL</span>
+            </div>
+            <input id="glucose" type="number" step="1" placeholder="e.g. 110">
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <span>Diabetes</span>
+              <span class="unit">Yes / No</span>
+            </div>
+            <select id="diabetes">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <span>Myocardial SUVmax</span>
+              <span class="unit">unitless</span>
+            </div>
+            <input id="suvmax" type="number" step="0.01" placeholder="e.g. 2.5">
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <span>Blood Pool SUVmean</span>
+              <span class="unit">unitless</span>
+            </div>
+            <input id="bloodpool" type="number" step="0.01" placeholder="e.g. 1.8">
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn-primary" onclick="runCalculator()">⚙️ Calculate</button>
+          <button class="btn-ghost" onclick="resetForm()">Reset</button>
+          <button class="btn-demo" onclick="loadDemo('prakash')">Demo: Adequate</button>
+          <button class="btn-demo" onclick="loadDemo('ramesh')">Demo: Inadequate</button>
+        </div>
+      </section>
+
+      <section class="results">
+        <div class="result-card">
+          <div class="result-title">Predicted probability</div>
+          <div class="prob-value" id="prob-display">--%</div>
+          <span id="class-badge" class="badge">No output yet</span>
+          <div class="small">
+            Classification threshold: <b>91%</b> probability of adequate suppression
+            (ROC / Youden index).<br>
+            Below this, case is treated as <b>inadequate / doubtful</b>.
+          </div>
+          <details>
+            <summary>Show model equation</summary>
+            <p class="small">
+              Logistic regression (outcome: adequate suppression):<br>
+              logit(p) = 6.9059 + 0.7026·BHB − 0.0189·Glucose − 0.2195·Diabetes − 1.5599·M:BP<br>
+              Diabetes: 1 = yes, 0 = no. M:BP = Myocardial SUVmax / Blood pool SUVmean.
+            </p>
+          </details>
+        </div>
+
+        <div class="result-card">
+          <div class="result-title">M:BP ratio & study cut-offs</div>
+          <div class="ratio-value" id="ratio-display">--</div>
+          <div class="small">
+            • M:BP ≤ <b>1.63</b> → adequate suppression in your cohort<br>
+            • BHB ≥ <b>0.23 mmol/L</b> → excellent suppression marker<br>
+            • Glucose ≤ <b>118 mg/dL</b> → supportive for suppression<br><br>
+            The final classification uses a <b>rule + ML hybrid:</b><br>
+            1) If BHB &lt; 0.23 → Inadequate (fails BHB cut-off)<br>
+            2) Else if M:BP &gt; 1.63 → Inadequate (fails M:BP cut-off)<br>
+            3) Else use ML probability with 91% threshold.
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        Research tool based on your study dataset – not for standalone clinical decision-making.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Logistic regression coefficients (probability of ADEQUATE suppression)
+    const B0    = 6.9059;
+    const B_BHB = 0.7026;
+    const B_GLU = -0.0189;
+    const B_DM  = -0.2195;
+    const B_MBP = -1.5599;
+
+    // ROC-optimized threshold (~0.914) → use 0.91
+    const CLASS_THRESHOLD = 0.91;
+
+    // Study rule cut-offs
+    const BHB_CUTOFF = 0.23;   // mmol/L
+    const MBP_CUTOFF = 1.63;   // ratio
+
+    function runCalculator() {
+      const bhbVal = parseFloat(document.getElementById('bhb').value);
+      const gluVal = parseFloat(document.getElementById('glucose').value);
+      const dmVal  = parseInt(document.getElementById('diabetes').value);
+      const suvVal = parseFloat(document.getElementById('suvmax').value);
+      const bpVal  = parseFloat(document.getElementById('bloodpool').value);
+
+      const probDisplay  = document.getElementById('prob-display');
+      const ratioDisplay = document.getElementById('ratio-display');
+      const badge        = document.getElementById('class-badge');
+
+      if (isNaN(bhbVal) || isNaN(gluVal) || isNaN(dmVal) ||
+          isNaN(suvVal) || isNaN(bpVal) || bpVal === 0) {
+        probDisplay.textContent  = "--%";
+        ratioDisplay.textContent = "--";
+        badge.textContent        = "Enter all values";
+        badge.className          = "badge";
+        return;
+      }
+
+      // M:BP ratio
+      const ratio = suvVal / bpVal;
+      ratioDisplay.textContent = ratio.toFixed(3);
+
+      // ML probability of ADEQUATE suppression
+      const logit =
+        B0 +
+        B_BHB * bhbVal +
+        B_GLU * gluVal +
+        B_DM  * dmVal +
+        B_MBP * ratio;
+
+      const p = 1 / (1 + Math.exp(-logit));
+      const pPct = (p * 100).toFixed(1);
+      probDisplay.textContent = pPct + "%";
+
+      // Rule + ML hybrid classification
+      let predictedAdequate = false;
+      let reason = "";
+
+      if (bhbVal < BHB_CUTOFF) {
+        predictedAdequate = false;
+        reason = " (fails BHB cut-off)";
+      } else if (ratio > MBP_CUTOFF) {
+        predictedAdequate = false;
+        reason = " (fails M:BP cut-off)";
+      } else {
+        if (p >= CLASS_THRESHOLD) {
+          predictedAdequate = true;
+          reason = " (BHB & M:BP OK, ML ≥ 91%)";
+        } else {
+          predictedAdequate = false;
+          reason = " (BHB & M:BP OK, but ML < 91%)";
+        }
+      }
+
+      if (predictedAdequate) {
+        badge.textContent = "Predicted: Adequate suppression" + reason;
+        badge.className   = "badge badge-good";
+      } else {
+        badge.textContent = "Predicted: Inadequate / doubtful suppression" + reason;
+        badge.className   = "badge badge-bad";
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('bhb').value = "";
+      document.getElementById('glucose').value = "";
+      document.getElementById('diabetes').value = "0";
+      document.getElementById('suvmax').value = "";
+      document.getElementById('bloodpool').value = "";
+      document.getElementById('prob-display').textContent = "--%";
+      document.getElementById('ratio-display').textContent = "--";
+      const badge = document.getElementById('class-badge');
+      badge.textContent = "No output yet";
+      badge.className = "badge";
+    }
+
+    // Demo cases for live presentation
+    function loadDemo(which) {
+      if (which === "prakash") {
+        // Adequate suppression example (from your data)
+        document.getElementById('bhb').value      = "0.95";
+        document.getElementById('glucose').value  = "74";
+        document.getElementById('diabetes').value = "0";
+        document.getElementById('suvmax').value   = "1.73";
+        document.getElementById('bloodpool').value= "2.29";
+      } else if (which === "ramesh") {
+        // Inadequate suppression example (from your data)
+        document.getElementById('bhb').value      = "0.07";
+        document.getElementById('glucose').value  = "118";
+        document.getElementById('diabetes').value = "1";
+        document.getElementById('suvmax').value   = "4.17";
+        document.getElementById('bloodpool').value= "2.09";
+      }
+      runCalculator();
+    }
+  </script>
+</body>
+</html>
